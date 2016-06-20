@@ -83,5 +83,18 @@ public class OracleDatabase implements DatabaseFactory {
         this.pass = databasePass;
     }
 
+    @Override
+    public String getUrl() {
+        return url;
+    }
 
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
+    public String getPass() {
+        return pass;
+    }
 }

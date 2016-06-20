@@ -23,7 +23,6 @@ public class JsonFilesDirectory implements JsonFilesSourceFactory {
     public void readJsonFilesAndConvertToJavaObjectsRunnable(){
 
         javaObjectsMap = new HashMap<Class, List<Object>>();
-        //new ArrayList<Object>();
 
         System.out.println("Starting runnable approach for reading files!");
 
@@ -35,7 +34,6 @@ public class JsonFilesDirectory implements JsonFilesSourceFactory {
     public void readJsonFilesAndConvertToJavaObjectsCallable(){
 
         javaObjectsMap = new HashMap<Class, List<Object>>();
-        //javaObjects = new ArrayList<Object>();
 
         System.out.println("Starting callable approach for reading files!");
 
@@ -106,12 +104,14 @@ public class JsonFilesDirectory implements JsonFilesSourceFactory {
 
         File folder = new File(dirPath);
 
-        if(folder.length() > 0) {
+        System.out.println("Start reading "+ ((folder.isDirectory())?"Directory":"File") + " " + folder.getName() + "!");
+
+        if(folder.length() > 0 || folder.isDirectory()) {
             for (File fileEntry : folder.listFiles()) {
 
                 if (fileEntry.isDirectory()) {
 
-                    readDirectoryFilesCallable(fileEntry.getName());
+                    readDirectoryFilesCallable((dirPath.endsWith("/")?dirPath:dirPath + "/") + fileEntry.getName());
 
                 } else {
 
@@ -152,10 +152,10 @@ public class JsonFilesDirectory implements JsonFilesSourceFactory {
             copyJavaObjectsCallable();
 
         } else {
-            System.out.println("Directory not found or directory is empty!");
+            System.out.println("Directory " + folder.getName() + " : not found or directory is empty!");
         }
 
-        System.out.println("Time Taken by Callable concurrent reading/parsing : "
+        System.out.println("Time Taken by Callable concurrent reading/parsing of " + folder.getName() + ": "
                 +(System.currentTimeMillis()-start) + " ms ");
 
     }

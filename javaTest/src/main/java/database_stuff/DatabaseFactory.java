@@ -8,6 +8,9 @@ public interface DatabaseFactory {
     void setUrl(String databaseUrl);
     void setUser(String databaseUser);
     void setPass(String databasePass);
+    String getUrl();
+    String getUser();
+    String getPass();
 
     Object getDatabaseConnection();
 

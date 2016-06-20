@@ -41,6 +41,8 @@ public class JsonFileReadAppMain {
         }
 
         //get json files and convert them to java objects part
+        long readStart = System.currentTimeMillis();
+
         JsonFilesSourceFactoryProducer jsonFilesSourceFactory =
                 new JsonFilesSourceFactoryProducer();
         JsonFilesSourceFactory jsonFilesSource =
@@ -62,9 +64,13 @@ public class JsonFileReadAppMain {
             System.out.println("Unknown JSON files source type!");
         }
 
+        System.out.println("Total time for reading and parsing Json files : "
+                +(System.currentTimeMillis()- readStart) + " ms ");
+
         //database part
         //converts extracted Application objects and converts them to Application DatabaseObjects
         //then for objects of class Player : filter, order, insert
+        System.out.println("Start database part!");
         long dbStart = System.currentTimeMillis();
 
         DatabaseFactoryProducer databaseFactory = new DatabaseFactoryProducer();
@@ -73,6 +79,12 @@ public class JsonFileReadAppMain {
         database.setUser("add");
         database.setPass("add");
 
+        System.out.println("Database login params :");
+        System.out.println("url : " + database.getUrl());
+        System.out.println("user : " + database.getUser());
+        System.out.println("pass : " + database.getPass());
+
+
         if(database != null){
 
             //get extracted application Objects from files
@@ -80,13 +92,13 @@ public class JsonFileReadAppMain {
 
             for (Map.Entry<Class, List<Object>> entry : extractedObjects.entrySet()) {
 
-                AppObjectProducer dbObjectPruducer = new AppObjectProducer();
+                AppObjectProducer dbObjectProducer = new AppObjectProducer();
                 List<DatabaseObject> dbObjects = new ArrayList<DatabaseObject>();
 
                 //convert extracted Objects from files to DatabaseObjects
                 //in this case app_objects.Player is converted to app_objects.PlayerSQL
                 for(Object obj : entry.getValue()){
-                    DatabaseObject dbObj = dbObjectPruducer.getCorrespondingDatabaseObject(obj);
+                    DatabaseObject dbObj = dbObjectProducer.getCorrespondingDatabaseObject(obj);
 
                     if(dbObj != null) {
                         dbObjects.add(dbObj);
@@ -96,16 +108,16 @@ public class JsonFileReadAppMain {
                 System.out.println(
                         entry.getValue().size()
                         + " objects of class " + entry.getKey().getName()
-                        + " converted to DatabaseObjects of " + dbObjects.get(0).getClass()
-                        + "! Number of objects converted : " + dbObjects.size() + "!"
+                        + " converted to DatabaseObjects of " + dbObjects.get(0).getClass() + "!"
                 );
-
+                System.out.println( "Number of objects converted : " + dbObjects.size() + "!");
                 DatabaseObjectSet dbObjectsSet = new DatabaseObjectSet();
 
                 //do app_objects.Player class specific actions
                 if(entry.getKey() == Player.class) {
 
                     //apply filter to extracted app_objects.Player DatabaseObjects
+                    System.out.println("Start Filter DatabaseObjects");
                     long filterStart = System.currentTimeMillis();
 
                     DatabaseObjectFilterOperation filterOperation = DatabaseObjectFilterOperation.HIGHER;
@@ -120,11 +132,14 @@ public class JsonFileReadAppMain {
                                                 filterOperation
                                              );
 
+                    System.out.println("Number of objects after filter : " + dbObjects.size());
+
                     System.out.println("Filter DatabaseObjects time : "
                             +(System.currentTimeMillis()- filterStart) + " ms ");
                     //end filter
 
                     //Order extracted app_objects.Player DatabaseObjects
+                    System.out.println("Start Order DatabaseObjects");
                     long ordStart = System.currentTimeMillis();
 
                     dbObjects = dbObjectsSet.defaultOrderObjects(dbObjects);
